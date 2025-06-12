@@ -46,3 +46,4 @@ __pycache__
 .c3nbrc.js
 **/.ipynb_checkpoints/
 .zshrc
+.env
