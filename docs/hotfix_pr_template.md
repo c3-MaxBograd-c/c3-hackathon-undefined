@@ -1,71 +1,34 @@
 # Hotfix Pull Request Template
 
-## 🚨 Hotfix Information
-**Severity Level:** <!-- Critical/High/Medium -->
-**Target Environment:** <!-- Production/Staging/Development -->
+## Hotfix Overview
+Issue Type: 
+Severity: 
+Target Environment: 
 
-## Issue Description
-<!-- Describe the critical issue being fixed -->
+## Summary of Changes
+🚨 **Critical Fix:** [Brief description of the critical issue]
+- [Fix 1]
+- [Fix 2]
 
-### Impact
-- [ ] Production outage
-- [ ] Data integrity issue
-- [ ] Security vulnerability
-- [ ] Performance degradation
-- [ ] User-facing bug
-- [ ] Other critical issue
+## Jira Ticket
+[Link to Jira ticket/Incident]
 
-### Affected Systems
-<!-- List all systems/components affected -->
+## Screenshot / Recording / Passing Tests
+[Picture 1]
+[Recording 1]
+[Passing Tests 1]
 
-## Root Cause Analysis
-<!-- Brief explanation of what caused the issue -->
-
-## Solution
-<!-- Describe the fix being implemented -->
-
-### Changes Made
-- [ ] Code fix
-- [ ] Configuration change
-- [ ] Database update
-- [ ] Infrastructure change
-- [ ] Rollback to previous version
-
-## Testing (Emergency Protocols)
-- [ ] Fix tested in staging/development
-- [ ] Smoke tests completed
-- [ ] Critical path verification
-- [ ] Rollback plan prepared
-
-## Risk Assessment
-- [ ] Low risk - isolated change
-- [ ] Medium risk - limited scope
-- [ ] High risk - broad impact
-
-### Mitigation Strategies
-<!-- What safeguards are in place? -->
-
-## Deployment Plan
-### Pre-deployment
-- [ ] Stakeholders notified
-- [ ] Monitoring alerts prepared
-- [ ] Rollback procedure confirmed
-
-### Post-deployment
-- [ ] System monitoring plan
-- [ ] Success criteria defined
-- [ ] Communication plan for status updates
-
-## Approval Required
-- [ ] Team Lead approval
-- [ ] DevOps approval
-- [ ] Product Owner approval (if applicable)
-
-## Emergency Contacts
-<!-- List key personnel to contact if issues arise -->
-
-## Follow-up Actions
+## Known TODO Items
 - [ ] Post-mortem scheduled
-- [ ] Documentation updates needed
-- [ ] Process improvements identified
 - [ ] Long-term solution planned
+- [ ] N/A
+
+## Checklist
+See c3guidelines. Enter x if complete and n/a if not applicable:
+
+- [ ] I have performed a self-review of my own code within the PR.
+- [ ] I have commented my code, particularly in hard-to-understand areas.
+- [ ] I have attached a screenshot/video of the UI result.
+- [ ] I have added tests to prevent future regressions.
+- [ ] Rollback plan prepared.
+- [ ] Stakeholders notified.

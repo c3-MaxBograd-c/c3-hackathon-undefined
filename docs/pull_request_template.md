@@ -1,65 +1,30 @@
 # Pull Request Template
 
-## Description
-<!-- Provide a brief description of what this PR accomplishes -->
+## Pull Request Overview
+Type: 
+Priority: 
+Jira Ticket: 
 
-### What changes were made?
-- [ ] Bug fix (non-breaking change which fixes an issue)
-- [ ] New feature (non-breaking change which adds functionality)
-- [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)
-- [ ] Documentation update
-- [ ] Refactoring (no functional changes)
-- [ ] Performance improvement
-- [ ] Other (please describe):
+## Summary of Changes
+- [Change 1]
+- [Change 2]
+- [Change 3]
 
-### Summary of Changes
-<!-- Provide a clear and concise description of the changes -->
+## Jira Ticket
+[Link to Jira ticket]
 
-## Related Issues
-<!-- Link any related issues or tickets -->
-Fixes #(issue number)
-Related to #(issue number)
+## Screenshot / Recording / Passing Tests
+[Picture 1]
+[Recording 1]
+[Passing Tests 1]
 
-## Testing
-### How has this been tested?
-- [ ] Unit tests
-- [ ] Integration tests
-- [ ] Manual testing
-- [ ] Automated testing pipeline
-
-### Test Coverage
-- [ ] Tests have been added/updated
-- [ ] All tests are passing
-- [ ] Test coverage maintained/improved
-
-## Code Quality
-- [ ] Code follows project style guidelines
-- [ ] Self-review of code completed
-- [ ] Code is properly commented
-- [ ] No console.log/print statements left in production code
-- [ ] Performance impact considered
-
-## Documentation
-- [ ] Documentation updated (if applicable)
-- [ ] README updated (if applicable)
-- [ ] API documentation updated (if applicable)
-- [ ] Comments added for complex logic
-
-## Deployment
-- [ ] Database migrations included (if applicable)
-- [ ] Environment variables updated (if applicable)
-- [ ] Configuration changes documented
-- [ ] Backwards compatibility maintained
-
-## Screenshots/Videos
-<!-- Include screenshots or videos for UI changes -->
-
-## Reviewer Notes
-<!-- Any specific areas you'd like reviewers to focus on -->
+## Known TODO Items
+N/A
 
 ## Checklist
-- [ ] I have performed a self-review of my own code
-- [ ] I have made corresponding changes to the documentation
-- [ ] My changes generate no new warnings
-- [ ] I have added tests that prove my fix is effective or that my feature works
-- [ ] New and existing unit tests pass locally with my changes
+See c3guidelines. Enter x if complete and n/a if not applicable:
+
+- [ ] I have performed a self-review of my own code within the PR.
+- [ ] I have commented my code, particularly in hard-to-understand areas.
+- [ ] I have attached a screenshot/video of the UI result.
+- [ ] I have added tests to prevent future regressions.
