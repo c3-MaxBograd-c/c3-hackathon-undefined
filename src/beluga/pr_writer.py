@@ -1,5 +1,5 @@
-from narwhal.git_utils import get_repo, get_changed_files
-from narwhal.ai_agent import draft_pr_with_ai
+from beluga.git_utils import get_repo, get_changed_files
+from beluga.ai_agent import draft_pr_with_ai
 
 def create_pr():
     repo = get_repo()

@@ -1,2 +1,2 @@
 [console_scripts]
-nh = narwhal.cli:cli
+bl = beluga.cli:cli
