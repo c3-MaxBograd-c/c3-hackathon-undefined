@@ -2,16 +2,10 @@ Metadata-Version: 2.4
 Name: beluga
 Version: 0.1.0
 Summary: Agentic AI PR creator for C3–Hackathon
-Author: c3-Guillermo-c
 Requires-Python: >=3.8
-Description-Content-Type: text/markdown
 License-File: LICENSE
 Requires-Dist: click
 Requires-Dist: GitPython
 Requires-Dist: PyGithub
 Requires-Dist: openai
 Dynamic: license-file
-
-$ source .venv/bin/activate
-
-$ pip install -e .

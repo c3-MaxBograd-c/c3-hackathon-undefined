@@ -1,3 +1,2 @@
 beluga
-narwhal
 pr_writer
