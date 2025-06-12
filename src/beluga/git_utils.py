@@ -21,7 +21,8 @@ def get_repo(path="."):
     """
     Return a GitPython Repo object rooted at `path`.
     """
-    return git.Repo(path)
+    print('here')
+    return git.Repo('/Users/jchen/Desktop/c3/c3-hackathon-undefined')
 
 def get_changed_files(repo=None):
     """
