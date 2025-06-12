@@ -45,3 +45,4 @@ __pycache__
 .vale/styles/Microsoft/
 .c3nbrc.js
 **/.ipynb_checkpoints/
+.zshrc
