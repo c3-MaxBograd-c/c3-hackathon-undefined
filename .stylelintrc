@@ -1,0 +1,12 @@
+{
+  "extends": [
+    "stylelint-config-standard-scss",
+    "stylelint-config-prettier-scss"
+  ],
+  "rules": {
+    "custom-property-pattern": null,
+    "no-invalid-position-at-import-rule": null,
+    "scss/load-partial-extension": null,
+    "selector-class-pattern": null
+  }
+}

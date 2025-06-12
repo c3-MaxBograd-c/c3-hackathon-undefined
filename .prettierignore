@@ -1,0 +1,6 @@
+**/jsconfig.json
+**/gen/cache/**
+**/build/**
+**/dist/**
+**/vendor/**
+**/ui/content/**
