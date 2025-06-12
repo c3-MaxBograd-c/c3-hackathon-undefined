@@ -25,9 +25,10 @@ version = "0.1.0"
 description = "Agentic AI PR creator for C3–Hackathon"
 requires-python = ">=3.8"
 dependencies = [
-  "click",
-  "GitPython",
-  "PyGithub",
+  "click>=8.0.0",
+  "GitPython>=3.1.0",
+  "PyGithub>=1.59.0",
+  "python-dotenv>=1.0.0",
   "openai",
 ]
 
