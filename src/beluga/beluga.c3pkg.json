@@ -1,0 +1,16 @@
+{
+  "name": "beluga",
+  "description": "PR Creating Agentic Agent",
+  "author": "c3 AI Hackathon Team Undefined",
+  "dependencies": {
+    "genAiSearch": "6.87"
+  },
+  "eslintConfig": {
+    "extends": ["plugin:@c3/c3-base", "plugin:@c3/typescript"],
+    "plugins": ["@c3"],
+    "parserOptions": {
+      "sourceType": "module"
+    }
+  },
+  "version": "8.7"
+}
