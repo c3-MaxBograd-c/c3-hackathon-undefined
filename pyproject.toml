@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "narwhal"
+version = "0.1.0"
+description = "Agentic AI PR creator for C3–Hackathon"
+authors = [
+  { name="c3-Guillermo-c" }
+]
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+  "click",
+  "GitPython",
+  "PyGithub",
+  "openai",
+]
+
+[project.scripts]
+nh = "narwhal.cli:cli"

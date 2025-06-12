@@ -1,0 +1,14 @@
+LICENSE
+pyproject.toml
+src/pr_writer.py
+src/narwhal/__init__.py
+src/narwhal/ai_agent.py
+src/narwhal/cli.py
+src/narwhal/git_utils.py
+src/narwhal/pr_writer.py
+src/narwhal.egg-info/PKG-INFO
+src/narwhal.egg-info/SOURCES.txt
+src/narwhal.egg-info/dependency_links.txt
+src/narwhal.egg-info/entry_points.txt
+src/narwhal.egg-info/requires.txt
+src/narwhal.egg-info/top_level.txt
