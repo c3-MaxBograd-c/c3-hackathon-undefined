@@ -6,6 +6,7 @@ src/beluga/ai_agent.py
 src/beluga/cli.py
 src/beluga/git_utils.py
 src/beluga/jira_utils.py
+src/beluga/messages.py
 src/beluga/pr_writer.py
 src/beluga.egg-info/PKG-INFO
 src/beluga.egg-info/SOURCES.txt
