@@ -1,2 +1,15 @@
 #!/usr/bin/env bash
+# -------------------------------------------------------------------
+# Shim script to invoke `bl` from ./scripts without installing.
+# -------------------------------------------------------------------
+# What it does:
+#   - Finds your virtualenv’s `bl` binary
+#   - Execs it with passed args
+#
+# Where to add changes:
+#   - If you relocate the venv, update the path in dirname "$0"/../.venv
+#
+# What not to change:
+#   - exec line—preserves SIGINT and args
+#
 exec "$(dirname "$0")/../.venv/bin/bl" "$@"

@@ -1,3 +1,20 @@
+# -------------------------------------------------------------------
+# Project metadata & entry point
+# -------------------------------------------------------------------
+# What it does:
+#   - Defines your package name, deps, and console_scripts
+#
+# Key parts:
+#   [project.scripts] bl = "beluga.cli:cli"
+#     → Tells pip/setuptools to install a `bl` binary
+#
+# Where to add changes:
+#   - Add new CLI entry points under [project.scripts]
+#
+# What not to change:
+#   - The build-system section
+#   - The name = "beluga" if your package name must stay consistent
+#
 [build-system]
 requires = ["setuptools>=42", "wheel"]
 build-backend = "setuptools.build_meta"
@@ -6,10 +23,6 @@ build-backend = "setuptools.build_meta"
 name = "beluga"
 version = "0.1.0"
 description = "Agentic AI PR creator for C3–Hackathon"
-authors = [
-  { name="c3-Guillermo-c" }
-]
-readme = "README.md"
 requires-python = ">=3.8"
 dependencies = [
   "click",
@@ -19,4 +32,5 @@ dependencies = [
 ]
 
 [project.scripts]
+# CLI command → module:function
 bl = "beluga.cli:cli"

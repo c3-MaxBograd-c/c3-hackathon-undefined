@@ -1,4 +1,5 @@
 LICENSE
+README.md
 pyproject.toml
 src/pr_writer.py
 src/beluga/__init__.py

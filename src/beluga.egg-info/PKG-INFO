@@ -11,3 +11,7 @@ Requires-Dist: GitPython
 Requires-Dist: PyGithub
 Requires-Dist: openai
 Dynamic: license-file
+
+$ source .venv/bin/activate
+
+$ pip install -e .
