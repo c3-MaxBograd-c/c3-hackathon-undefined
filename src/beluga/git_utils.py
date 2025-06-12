@@ -49,10 +49,11 @@ def get_commit_messages_from_develop(repo=None):
     """
     Return a list of commit messages from the current branch
     after its last merge with 'develop'.
-    Defaults to 'develop' if no branch is specified.
     """
     repo = repo or get_repo()
-    commits = list(repo.iter_commits(repo.merge_base(repo.head.commit, 'develop')[0]))
+    # Find the merge base between the current branch and 'develop'
+    merge_base = repo.merge_base(repo.head.commit, 'develop')[0]
+    commits = list(repo.iter_commits(merge_base))
     return [commit.message.strip() for commit in commits]
 
 # === To Extend ===
