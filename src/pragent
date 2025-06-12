@@ -1,0 +1,4 @@
+#!/bin/bash
+# This script executes the Python file pr_writer.py
+
+python3 "$(dirname "$0")/pr_writer.py"
