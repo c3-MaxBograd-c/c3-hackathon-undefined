@@ -23,7 +23,7 @@ def draft_pr_with_ai(files, jira, template):
     prompt_content = f"""
 You are a software assistant that drafts high-quality GitHub pull request titles and bodies.
 
-Use the following information:
+Use the following information and please edit the pr to reflect those changes and the title of the pr should be the jira ticker number:
 
 --- Jira Info ---
 {jira}
@@ -41,13 +41,11 @@ Use the following information:
 {diffs_text}
 
 Please return:
-- A PR title on the first line
-- A clear and concise PR body beneath it
+- The TITLE IS JUST THE TICKET NUMBER THAT IS
+- A clear and concise PR body beneath it(no ai comments,just the body) please do not add ur comments in the title or body.
 """
 
     # 4. Set up OpenAI
-    assistant_id = ""
-    openai.api_key = ""
 
     if not assistant_id:
         raise RuntimeError("OPENAI_ASSISTANT_ID environment variable not set.")
@@ -80,7 +78,7 @@ Please return:
     messages = openai.beta.threads.messages.list(thread_id=thread.id)
     content = messages.data[0].content[0].text.value.strip()
     lines = content.split("\n", 1)
-    title = lines[0].strip()
-    body = lines[1].strip() if len(lines) > 1 else "AI-generated PR body."
+    title = jira.split(":")[0].strip()  
+    body = lines[1].strip() 
 
     return title, body
