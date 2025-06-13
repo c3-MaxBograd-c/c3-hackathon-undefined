@@ -68,18 +68,20 @@ def create_pr(title: Optional[str] = None, body: Optional[str] = None) -> Option
             files = get_changed_files(repo)
 
             file_paths = [file['path'] for file in files]
-            # Gonna read the diffs here
             print(f"📝 Found {len(files)} changed files:")
             print('\n'.join(f"\t{file_path}" for file_path in file_paths))            
-            
-            # TODO Pull Jira data here
-            # TODO Pull template
-            jira_data = ''
-            template = ''
+            # TODO: Read diffs and commit messages for more context:
+            # diffs = []
+            # for file_path in files:
+            #     try:
+            #         diff = repo.git.diff('HEAD', file_path)
+            #         diffs.append({'file': file_path, 'diff': diff})
+            #     except Exception as e:
+            #         print(f"⚠️  Could not get diff for {file_path}: {e}")
 
             print("🤖 Generating PR content with AI...")
             # Call AI agent to produce (title, body)
-            title, body = draft_pr_with_ai(files, jira, template)
+            title, body = draft_pr_with_ai(files)
         
         # Validate we have content
         if not title or not body:
@@ -229,9 +231,7 @@ def generate_pr_content() -> Tuple[str, str]:
 
         print("🤖 Generating PR content...")
         # Call AI agent to produce (title, body)
-        jira = ''
-        template = ''
-        title, body = draft_pr_with_ai(files, jira, template)
+        title, body = draft_pr_with_ai(files)
         
         if not title or not body:
             raise ValueError("AI failed to generate PR title or body")
@@ -453,3 +453,16 @@ def _get_base_branch(github_repo) -> str:
         # If all else fails, use 'main'
         return 'main'
 
+def fetch_jira_info_from_branch():
+    
+    branchName = subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"]).decode().strip()
+    
+    
+    ticketName = branch_name.split('/')[-1]
+    
+    if not ticket_name:
+         raise ValueError("Ticket name could not be extracted from branch name.")
+    
+    jiraInfo = get_jira_ticket_info(ticket_name)
+    
+    return jiraInfo
