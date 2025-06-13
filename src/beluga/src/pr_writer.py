@@ -68,6 +68,7 @@ def create_pr(title: Optional[str] = None, body: Optional[str] = None) -> Option
             files = get_changed_files(repo)
 
             file_paths = [file['path'] for file in files]
+            # Gonna read the diffs here
             print(f"📝 Found {len(files)} changed files:")
             print('\n'.join(f"\t{file_path}" for file_path in file_paths))            
             # TODO: Read diffs and commit messages for more context:
