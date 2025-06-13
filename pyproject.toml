@@ -5,7 +5,7 @@
 #   - Defines your package name, deps, and console_scripts
 #
 # Key parts:
-#   [project.scripts] bl = "beluga.cli:cli"
+#   [project.scripts] bl = "beluga.src.cli:cli"
 #     → Tells pip/setuptools to install a `bl` binary
 #
 # Where to add changes:
@@ -34,4 +34,4 @@ dependencies = [
 
 [project.scripts]
 # CLI command → module:function
-bl = "beluga.cli:cli"
+bl = "beluga.src.cli:cli"
