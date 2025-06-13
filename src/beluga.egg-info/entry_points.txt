@@ -1,2 +1,2 @@
 [console_scripts]
-bl = beluga.cli:cli
+bl = beluga.src.cli:cli

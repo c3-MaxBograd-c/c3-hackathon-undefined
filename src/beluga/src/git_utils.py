@@ -16,12 +16,34 @@
 #   - The existing function signatures—other modules depend on them.
 #
 import git
+import subprocess
 
-def get_repo(path="."):
+def get_repo(path=None):
     """
     Return a GitPython Repo object rooted at `path`.
+    If no path is provided, tries current directory first, then uses git rev-parse --show-toplevel.
     """
-    return git.Repo(path)
+    if path:
+        # If path is explicitly provided, use it directly
+        return git.Repo(path)
+    
+    try:
+        # First try current directory
+        return git.Repo(".")
+    except git.exc.InvalidGitRepositoryError:
+        try:
+            # If current directory fails, get the git repository root directory
+            result = subprocess.run(
+                ['git', 'rev-parse', '--show-toplevel'], 
+                capture_output=True, 
+                text=True, 
+                check=True
+            )
+            repo_root = result.stdout.strip()
+            return git.Repo(repo_root)
+        except subprocess.CalledProcessError:
+            # If git command fails, raise the original error
+            raise git.exc.InvalidGitRepositoryError("Not in a git repository and cannot find git root")
 
 def get_changed_files(repo=None):
     """

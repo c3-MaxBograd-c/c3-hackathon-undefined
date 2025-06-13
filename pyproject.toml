@@ -5,7 +5,7 @@
 #   - Defines your package name, deps, and console_scripts
 #
 # Key parts:
-#   [project.scripts] bl = "beluga.cli:cli"
+#   [project.scripts] bl = "beluga.src.cli:cli"
 #     → Tells pip/setuptools to install a `bl` binary
 #
 # Where to add changes:
@@ -25,12 +25,13 @@ version = "0.1.0"
 description = "Agentic AI PR creator for C3–Hackathon"
 requires-python = ">=3.8"
 dependencies = [
-  "click",
-  "GitPython",
-  "PyGithub",
+  "click>=8.0.0",
+  "GitPython>=3.1.0",
+  "PyGithub>=1.59.0",
+  "python-dotenv>=1.0.0",
   "openai",
 ]
 
 [project.scripts]
 # CLI command → module:function
-bl = "beluga.cli:cli"
+bl = "beluga.src.cli:cli"

@@ -4,8 +4,9 @@ Version: 0.1.0
 Summary: Agentic AI PR creator for C3–Hackathon
 Requires-Python: >=3.8
 License-File: LICENSE
-Requires-Dist: click
-Requires-Dist: GitPython
-Requires-Dist: PyGithub
+Requires-Dist: click>=8.0.0
+Requires-Dist: GitPython>=3.1.0
+Requires-Dist: PyGithub>=1.59.0
+Requires-Dist: python-dotenv>=1.0.0
 Requires-Dist: openai
 Dynamic: license-file
