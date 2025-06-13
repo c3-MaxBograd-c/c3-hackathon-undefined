@@ -46,6 +46,7 @@ Please return:
 """
 
     # 4. Set up OpenAI
+    assistant_id = os.getenv('ASSISTANT_ID')
 
     if not assistant_id:
         raise RuntimeError("OPENAI_ASSISTANT_ID environment variable not set.")

@@ -434,8 +434,9 @@ def fetch_jira_info_from_branch():
     
     branch_name = subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"]).decode().strip()
     
-    
-    ticket_name = branch_name.split('/')[-1]
+    # Added new code to better parse branch names
+    ticket_name = branch_name.split('/')[-1].split('-')[:2]
+    ticket_name = '-'.join(ticket_name)
     
     if not ticket_name:
          raise ValueError("Ticket name could not be extracted from branch name.")
