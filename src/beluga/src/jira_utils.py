@@ -6,9 +6,6 @@ def get_jira_ticket_info(ticket_id):
     Fetch Jira ticket info using the Jira REST API.
     Requires JIRA_BASE_URL, JIRA_EMAIL, and JIRA_API_TOKEN env vars.
     """
-    base_url = os.getenv("JIRA_BASE_URL")
-    email = os.getenv("JIRA_EMAIL")
-    api_token = os.getenv("JIRA_API_TOKEN")
     if not all([base_url, email, api_token]):
         raise RuntimeError("JIRA_BASE_URL, JIRA_EMAIL, and JIRA_API_TOKEN must be set in environment.")
 
@@ -17,4 +14,9 @@ def get_jira_ticket_info(ticket_id):
     headers = {"Accept": "application/json"}
     resp = requests.get(url, auth=auth, headers=headers)
     resp.raise_for_status()
-    return resp.json()
+    data = resp.json()
+    fields = data.get("fields", {})
+    summary = fields.get("summary", "")
+    status = fields.get("status", {}).get("name", "")
+    assignee = fields.get("assignee", {}).get("displayName", "")
+    return f"{ticket_id}: {summary} | Status: {status} | Assignee: {assignee}"
