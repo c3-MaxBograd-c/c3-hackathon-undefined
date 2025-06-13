@@ -26,8 +26,6 @@ from urllib.parse import urlparse
 from beluga.git_utils import get_repo, get_changed_files
 from beluga.ai_agent import draft_pr_with_ai
 
-from dotenv import load_dotenv
-
 def create_pr(title: Optional[str] = None, body: Optional[str] = None) -> Optional[str]:
     """
     Main function called by `bl pr create`.
@@ -67,8 +65,10 @@ def create_pr(title: Optional[str] = None, body: Optional[str] = None) -> Option
         else:
             # Generate content normally
             files = get_changed_files(repo)
-            print(f"📝 Found {len(files)} changed files: {', '.join(files)}")
-            
+
+            file_paths = [file['path'] for file in files]
+            print(f"📝 Found {len(files)} changed files:")
+            print('\n'.join(f"\t{file_path}" for file_path in file_paths))            
             # TODO: Read diffs and commit messages for more context:
             # diffs = []
             # for file_path in files:
@@ -383,9 +383,6 @@ def _get_base_branch(github_repo) -> str:
         # If all else fails, use 'main'
         return 'main'
 
-# load_dotenv() 
-# my_id = os.getenv("GITHUB_TOKEN")
-# print(my_id)
 
 def create_sample_pr():
     """
@@ -399,7 +396,6 @@ def create_sample_pr():
     """
     try:
         # Load environment variables
-        load_dotenv()
         
         # Dummy content
         title = "🚀 Sample PR: Testing PR Creation Feature"
