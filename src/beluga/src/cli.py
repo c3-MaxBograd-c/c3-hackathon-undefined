@@ -29,8 +29,8 @@
 import sys
 import click
 
-from beluga.pr_writer import create_pr, generate_pr_content
-from beluga import messages
+from beluga.src.pr_writer import create_pr, generate_pr_content
+from beluga.src import messages
 
 # =============================================================================
 # TOP-LEVEL CLI GROUP

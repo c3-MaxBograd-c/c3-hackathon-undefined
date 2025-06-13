@@ -23,8 +23,8 @@ import re
 from typing import Optional, Tuple
 from urllib.parse import urlparse
 
-from beluga.git_utils import get_repo, get_changed_files
-from beluga.ai_agent import draft_pr_with_ai
+from beluga.src.git_utils import get_repo, get_changed_files
+from beluga.src.ai_agent import draft_pr_with_ai
 from dotenv import load_dotenv
 
 def create_pr(title: Optional[str] = None, body: Optional[str] = None) -> Optional[str]:
