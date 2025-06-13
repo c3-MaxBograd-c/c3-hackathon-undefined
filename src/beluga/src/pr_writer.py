@@ -23,6 +23,7 @@ from typing import Optional, Tuple
 from urllib.parse import urlparse
 from beluga.src.git_utils import get_repo, get_changed_files
 from beluga.src.ai_agent import draft_pr_with_ai
+import beluga.src.jira_utils as jira_utils
 from dotenv import load_dotenv
 
 def create_pr(title: Optional[str] = None, body: Optional[str] = None) -> Optional[str]:
@@ -72,7 +73,8 @@ def create_pr(title: Optional[str] = None, body: Optional[str] = None) -> Option
             #         diffs.append({'file': file_path, 'diff': diff})
             #     except Exception as e:
             #         print(f"⚠️  Could not get diff for {file_path}: {e}")
-
+            jiraFetch = fetch_jira_info_from_branch()
+            jira_data = jira_utils.get_jira_ticket_info(jiraFetch)
             print("🤖 Generating PR content with AI...")
             # Call AI agent to produce (title, body)
             title, body = draft_pr_with_ai(files, jira_data, template)
