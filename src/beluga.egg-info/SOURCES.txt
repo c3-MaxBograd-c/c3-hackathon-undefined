@@ -8,9 +8,15 @@ src/beluga.egg-info/dependency_links.txt
 src/beluga.egg-info/entry_points.txt
 src/beluga.egg-info/requires.txt
 src/beluga.egg-info/top_level.txt
+src/beluga/gen/cache/TypeMetaDeps#pyi/PrAgent.pyi
+src/beluga/gen/cache/TypeMetaDeps#pyi/PrAgentConfig.pyi
+src/beluga/src/PrAgent.py
+src/beluga/src/agenticCli.py
 src/beluga/src/ai_agent.py
 src/beluga/src/cli.py
 src/beluga/src/git_utils.py
 src/beluga/src/jira_utils.py
 src/beluga/src/messages.py
 src/beluga/src/pr_writer.py
+src/beluga/src/read_code_diff_tool.py
+src/beluga/src/testHook.py
