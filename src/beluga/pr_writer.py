@@ -98,8 +98,7 @@ def create_pr(title: Optional[str] = None, body: Optional[str] = None) -> Option
         if not github_token:
             print("⚠️  Warning: GITHUB_TOKEN not found in environment")
             print("💡 Set GITHUB_TOKEN to enable actual PR creation")
-            print("🔄 Simulating PR creation for now...")
-            return _simulate_pr_creation(owner, repo_name, current_branch, title)
+            return 'Please set GITHUB_TOKEN in your environment to create a PR.'
         
         # Use PyGithub to create actual PR
         try:
@@ -168,8 +167,7 @@ def create_pr(title: Optional[str] = None, body: Optional[str] = None) -> Option
             
         except ImportError:
             print("❌ PyGithub not installed. Install with: pip install PyGithub")
-            print("🔄 Simulating PR creation for now...")
-            return _simulate_pr_creation(owner, repo_name, current_branch, title)
+            return 'Please install PyGithub to create a PR.'
             
         except GithubException as e:
             if e.status == 401:
@@ -331,33 +329,6 @@ def _parse_github_url(url: str) -> Tuple[str, str]:
     except Exception as e:
         raise Exception(f"Could not parse GitHub URL '{url}': {e}")
 
-def _simulate_pr_creation(owner: str, repo_name: str, branch: str, title: str) -> str:
-    """
-    Simulate PR creation for testing purposes.
-    
-    Args:
-        owner: GitHub repository owner
-        repo_name: Repository name
-        branch: Current branch name
-        title: PR title
-        
-    Returns:
-        str: Simulated PR URL
-    """
-    # Generate a fake PR number
-    import random
-    pr_number = random.randint(100, 999)
-    
-    simulated_url = f"https://github.com/{owner}/{repo_name}/pull/{pr_number}"
-    
-    print(f"🔄 Simulated PR creation:")
-    print(f"   Repository: {owner}/{repo_name}")
-    print(f"   Branch: {branch}")
-    print(f"   Title: {title}")
-    print(f"   URL: {simulated_url}")
-    
-    return simulated_url
-
 def _get_base_branch(github_repo) -> str:
     """
     Determine the base branch for the PR (usually 'main' or 'master').
@@ -382,7 +353,6 @@ def _get_base_branch(github_repo) -> str:
         
         # If all else fails, use 'main'
         return 'main'
-
 
 def create_sample_pr():
     """
