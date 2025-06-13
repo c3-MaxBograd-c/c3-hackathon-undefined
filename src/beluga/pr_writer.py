@@ -25,6 +25,7 @@ from urllib.parse import urlparse
 
 from beluga.git_utils import get_repo, get_changed_files
 from beluga.ai_agent import draft_pr_with_ai
+from dotenv import load_dotenv
 
 def create_pr(title: Optional[str] = None, body: Optional[str] = None) -> Optional[str]:
     """
@@ -93,6 +94,7 @@ def create_pr(title: Optional[str] = None, body: Optional[str] = None) -> Option
         print(f"\nBody:\n{body}")
         print("="*60)
         
+        load_dotenv()
         # Check for GitHub token
         github_token = os.getenv('GITHUB_TOKEN')
         if not github_token:
@@ -354,161 +356,3 @@ def _get_base_branch(github_repo) -> str:
         # If all else fails, use 'main'
         return 'main'
 
-def create_sample_pr():
-    """
-    Create a sample PR with dummy content for testing.
-    
-    This function directly creates a GitHub PR without using create_pr().
-    Uses dummy title and body content for testing purposes.
-    
-    Returns:
-        str: URL of created PR, or None if creation failed
-    """
-    try:
-        # Load environment variables
-        
-        # Dummy content
-        title = "🚀 Sample PR: Testing PR Creation Feature"
-        body = """## Summary of Changes
-                **Frontend Changes**
-                - [Sample frontend change 1]
-                - [Sample frontend change 2]
-
-                **Backend Changes**
-                - [Sample backend change 1]
-                - [Sample backend change 2]
-
-                ## Jira Ticket
-                [Sample Jira ticket link]
-
-                ## Screenshot / Recording / Passing Tests
-                [Sample screenshot 1]
-                [Sample recording 1]
-                [Sample passing tests 1]
-
-                ## Known TODO Items
-                N/A
-
-                ## Checklist
-                See c3guidelines. Enter x if complete and n/a if not applicable:
-
-                - [x] I have performed a self-review of my own code within the PR.
-                - [x] I have commented my code, particularly in hard-to-understand areas.
-                - [x] I have attached a screenshot/video of the UI result.
-                - [x] I have added tests to prevent future regressions.
-
-                ---
-                *This is a sample PR created for testing purposes.*"""
-        
-        print("🚀 Creating sample PR with dummy content...")
-        
-        # Get repository info
-        repo = get_repo()
-        print(repo)
-        current_branch = repo.active_branch.name
-        
-        # Get remote repository info
-        remote_url = _get_remote_url(repo)
-        owner, repo_name = _parse_github_url(remote_url)
-        
-        print(f"📁 Repository: {owner}/{repo_name}")
-        print(f"🌿 Current branch: {current_branch}")
-        
-        # Check for GitHub token
-        github_token = os.getenv('GITHUB_TOKEN')
-        if not github_token:
-            print("❌ Error: GITHUB_TOKEN not found in environment")
-            print("💡 Make sure to set GITHUB_TOKEN in your .env file")
-            return None
-        
-        # Use PyGithub to create actual PR
-        try:
-            from github import Github
-            from github.GithubException import GithubException
-            
-            print("🔐 Authenticating with GitHub...")
-            gh = Github(github_token)
-            
-            # Test authentication
-            user = gh.get_user()
-            print(f"✅ Authenticated as: {user.login}")
-            
-            # Get the repository
-            print(f"📡 Accessing repository {owner}/{repo_name}...")
-            github_repo = gh.get_repo(f"{owner}/{repo_name}")
-            
-            # Determine base branch (usually 'main' or 'master')
-            base_branch = _get_base_branch(github_repo)
-            print(f"🎯 Target base branch: {base_branch}")
-            
-            # Check if current branch exists on remote
-            try:
-                github_repo.get_branch(current_branch)
-                print(f"✅ Branch '{current_branch}' found on remote")
-            except GithubException as e:
-                if e.status == 404:
-                    print(f"❌ Branch '{current_branch}' not found on remote.")
-                    print(f"💡 Push your branch first: git push -u origin {current_branch}")
-                    return None
-                else:
-                    raise Exception(f"Error checking branch: {e}")
-            
-            # Check if PR already exists
-            existing_prs = github_repo.get_pulls(
-                state='open',
-                head=f"{owner}:{current_branch}",
-                base=base_branch
-            )
-            
-            if existing_prs.totalCount > 0:
-                existing_pr = existing_prs[0]
-                print(f"⚠️  PR already exists for branch '{current_branch}'")
-                print(f"🔗 Existing PR: {existing_pr.html_url}")
-                return existing_pr.html_url
-            
-            # Create the sample PR
-            print("🚀 Creating sample pull request...")
-            pr = github_repo.create_pull(
-                title=title,
-                body=body,
-                head=current_branch,
-                base=base_branch,
-                draft=False
-            )
-            
-            print(f"✅ Sample PR created successfully!")
-            print(f"🔗 PR URL: {pr.html_url}")
-            print(f"📊 PR #{pr.number}: {pr.title}")
-            
-            return pr.html_url
-            
-        except ImportError:
-            print("❌ PyGithub not installed. Install with: pip install PyGithub")
-            return None
-            
-        except GithubException as e:
-            if e.status == 401:
-                print("❌ GitHub authentication failed. Check your GITHUB_TOKEN.")
-            elif e.status == 403:
-                print("❌ GitHub access forbidden. Check your token permissions.")
-            elif e.status == 404:
-                print(f"❌ Repository {owner}/{repo_name} not found or no access.")
-            elif e.status == 422:
-                print("❌ PR creation failed validation. Check branch and repository state.")
-                if hasattr(e, 'data') and 'errors' in e.data:
-                    for error in e.data['errors']:
-                        print(f"   - {error.get('message', str(error))}")
-            else:
-                print(f"❌ GitHub API error: {e}")
-            return None
-                
-        except Exception as e:
-            print(f"❌ Failed to create sample PR: {e}")
-            return None
-        
-    except Exception as e:
-        print(f"❌ Error in create_sample_pr(): {e}")
-        return None
-
-
-create_sample_pr()  # Uncomment to run the sample PR creation function directly
