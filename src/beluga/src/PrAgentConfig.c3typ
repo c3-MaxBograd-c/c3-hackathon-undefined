@@ -1,4 +1,4 @@
 type PrAgentConfig mixes Config, Singleton {
 
-    endpoint = string
+    endpoint: string
 }

@@ -4,5 +4,5 @@
  */
 
 type PrAgent {
-    promptAgent: function(branchName: string): string py-git
+    promptAgent: function(branchName: string): string py-server
 }

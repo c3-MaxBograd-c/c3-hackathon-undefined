@@ -9,4 +9,5 @@ Requires-Dist: GitPython>=3.1.0
 Requires-Dist: PyGithub>=1.59.0
 Requires-Dist: python-dotenv>=1.0.0
 Requires-Dist: openai
+Requires-Dist: requests
 Dynamic: license-file

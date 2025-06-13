@@ -1,6 +1,6 @@
 import requests
 import json
-from git_utils import get_repo
+from beluga.src.git_utils import get_repo
 import subprocess
 
 def makeRestCall():
