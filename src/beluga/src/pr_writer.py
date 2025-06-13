@@ -49,16 +49,12 @@ def create_pr(title: Optional[str] = None, body: Optional[str] = None) -> Option
         Exception: If git repo issues, GitHub auth issues, or API errors
     """
     try:
-        # Get repository and basic info
-        repo = get_repo()
-        current_branch = repo.active_branch.name
+        # Setup GitHub connection and get repo info
+        setup_result = _setup_github_connection()
+        if not setup_result:
+            return 'Please set GITHUB_TOKEN in your environment to create a PR.'
         
-        # Get remote repository info
-        remote_url = _get_remote_url(repo)
-        owner, repo_name = _parse_github_url(remote_url)
-        
-        print(f"📁 Repository: {owner}/{repo_name}")
-        print(f"🌿 Current branch: {current_branch}")
+        repo, current_branch, owner, repo_name, github_repo, base_branch = setup_result
         
         if title and body:
             # Use provided title/body (from dry-run mode)
@@ -79,7 +75,7 @@ def create_pr(title: Optional[str] = None, body: Optional[str] = None) -> Option
 
             print("🤖 Generating PR content with AI...")
             # Call AI agent to produce (title, body)
-            title, body = draft_pr_with_ai(files, jira, template)
+            title, body = draft_pr_with_ai(files, jira_data, template)
         
         # Validate we have content
         if not title or not body:
@@ -92,105 +88,51 @@ def create_pr(title: Optional[str] = None, body: Optional[str] = None) -> Option
         print(f"\nBody:\n{body}")
         print("="*60)
         
-        load_dotenv()
-        # Check for GitHub token
-        github_token = os.getenv('GITHUB_TOKEN')
-        if not github_token:
-            print("⚠️  Warning: GITHUB_TOKEN not found in environment")
-            print("💡 Set GITHUB_TOKEN to enable actual PR creation")
-            return 'Please set GITHUB_TOKEN in your environment to create a PR.'
-        
-        # Use PyGithub to create actual PR
+        # Check if current branch exists on remote
         try:
-            from github import Github
             from github.GithubException import GithubException
-            
-            print("🔐 Authenticating with GitHub...")
-            gh = Github(github_token)
-            
-            # Test authentication
-            user = gh.get_user()
-            print(f"✅ Authenticated as: {user.login}")
-            
-            # Get the repository
-            print(f"📡 Accessing repository {owner}/{repo_name}...")
-            github_repo = gh.get_repo(f"{owner}/{repo_name}")
-            
-            # Determine base branch (usually 'main' or 'master')
-            base_branch = _get_base_branch(github_repo)
-            print(f"🎯 Target base branch: {base_branch}")
-            
-            # Check if current branch exists on remote
-            try:
-                github_repo.get_branch(current_branch)
-                print(f"✅ Branch '{current_branch}' found on remote")
-            except GithubException as e:
-                if e.status == 404:
-                    raise Exception(
-                        f"Branch '{current_branch}' not found on remote. "
-                        f"Push your branch first: git push -u origin {current_branch}"
-                    )
-                else:
-                    raise Exception(f"Error checking branch: {e}")
-            
-            # Check if PR already exists
-            existing_prs = github_repo.get_pulls(
-                state='open',
-                head=f"{owner}:{current_branch}",
-                base=base_branch
-            )
-            
-            if existing_prs.totalCount > 0:
-                existing_pr = existing_prs[0]
-                print(f"⚠️  PR already exists for branch '{current_branch}'")
-                print(f"🔗 Existing PR: {existing_pr.html_url}")
-                
-                # Ask if user wants to update existing PR
-                # For now, just return the existing PR URL
-                return existing_pr.html_url
-            
-            # Create the PR
-            print("🚀 Creating pull request...")
-            pr = github_repo.create_pull(
-                title=title,
-                body=body,
-                head=current_branch,
-                base=base_branch,
-                draft=False  # Set to True if you want draft PRs by default
-            )
-            
-            print(f"✅ PR created successfully!")
-            print(f"🔗 PR URL: {pr.html_url}")
-            print(f"📊 PR #{pr.number}: {pr.title}")
-            
-            return pr.html_url
-            
-        except ImportError:
-            print("❌ PyGithub not installed. Install with: pip install PyGithub")
-            return 'Please install PyGithub to create a PR.'
-            
+            github_repo.get_branch(current_branch)
+            print(f"✅ Branch '{current_branch}' found on remote")
         except GithubException as e:
-            if e.status == 401:
-                raise Exception("GitHub authentication failed. Check your GITHUB_TOKEN.")
-            elif e.status == 403:
-                raise Exception("GitHub access forbidden. Check your token permissions.")
-            elif e.status == 404:
-                raise Exception(f"Repository {owner}/{repo_name} not found or no access.")
-            elif e.status == 422:
-                # Validation failed - often due to branch issues
-                error_msg = "PR creation failed validation"
-                if hasattr(e, 'data') and 'errors' in e.data:
-                    errors = [error.get('message', str(error)) for error in e.data['errors']]
-                    error_msg += f": {'; '.join(errors)}"
-                raise Exception(error_msg)
+            if e.status == 404:
+                raise Exception(
+                    f"Branch '{current_branch}' not found on remote. "
+                    f"Push your branch first: git push -u origin {current_branch}"
+                )
             else:
-                raise Exception(f"GitHub API error: {e}")
-                
-        except Exception as e:
-            if "PyGithub" in str(type(e)):
-                raise Exception(f"GitHub API error: {e}")
-            else:
-                raise Exception(f"Failed to create GitHub PR: {e}")
+                raise Exception(f"Error checking branch: {e}")
+        
+        # Check if PR already exists
+        existing_prs = github_repo.get_pulls(
+            state='open',
+            head=f"{owner}:{current_branch}",
+            base=base_branch
+        )
+        
+        if existing_prs.totalCount > 0:
+            existing_pr = existing_prs[0]
+            print(f"⚠️  PR already exists for branch '{current_branch}'")
+            print(f"🔗 Existing PR: {existing_pr.html_url}")
+            
+            # Ask if user wants to update existing PR
+            # For now, just return the existing PR URL
+            return existing_pr.html_url
+        
+        # Create the PR
+        print("🚀 Creating pull request...")
+        pr = github_repo.create_pull(
+            title=title,
+            body=body,
+            head=current_branch,
+            base=base_branch,
+            draft=False  # Set to True if you want draft PRs by default
+        )
+        
+        print(f"✅ PR created successfully!")
+        print(f"🔗 PR URL: {pr.html_url}")
+        print(f"📊 PR #{pr.number}: {pr.title}")
+        
+        return pr.html_url
         
     except Exception as e:
         print(f"❌ Error in create_pr(): {e}")
@@ -259,96 +201,45 @@ def update_pr() -> Optional[str]:
         Exception: If git repo issues, GitHub auth issues, or API errors
     """
     try:
-        # Load environment variables
-        load_dotenv()
-        
-        # Get repository and basic info
-        repo = get_repo()
-        current_branch = repo.active_branch.name
-        
-        # Get remote repository info
-        remote_url = _get_remote_url(repo)
-        owner, repo_name = _parse_github_url(remote_url)
-        
-        print(f"📁 Repository: {owner}/{repo_name}")
-        print(f"🌿 Current branch: {current_branch}")
-        
-        # Check for GitHub token
-        github_token = os.getenv('GITHUB_TOKEN')
-        if not github_token:
-            print("❌ Error: GITHUB_TOKEN not found in environment")
-            print("💡 Set GITHUB_TOKEN to enable PR updates")
+        # Setup GitHub connection and get repo info
+        setup_result = _setup_github_connection()
+        if not setup_result:
             return None
         
-        # Use PyGithub to find and update PR
-        try:
-            from github import Github
-            from github.GithubException import GithubException
-            
-            print("🔐 Authenticating with GitHub...")
-            gh = Github(github_token)
-            
-            # Test authentication
-            user = gh.get_user()
-            print(f"✅ Authenticated as: {user.login}")
-            
-            # Get the repository
-            print(f"📡 Accessing repository {owner}/{repo_name}...")
-            github_repo = gh.get_repo(f"{owner}/{repo_name}")
-            
-            # Determine base branch (usually 'main' or 'master')
-            base_branch = _get_base_branch(github_repo)
-            print(f"🎯 Base branch: {base_branch}")
-            
-            # Look for existing PR for current branch
-            print(f"🔍 Looking for existing PR for branch '{current_branch}'...")
-            existing_prs = github_repo.get_pulls(
-                state='open',
-                head=f"{owner}:{current_branch}",
-                base=base_branch
-            )
-            
-            if existing_prs.totalCount == 0:
-                print(f"❌ No open PR found for branch '{current_branch}'")
-                print("💡 Create a PR first by running: bl pr create")
-                return None
-            
-            # Get the existing PR
-            existing_pr = existing_prs[0]
-            print(f"✅ Found existing PR #{existing_pr.number}: {existing_pr.title}")
-            print(f"🔗 Current PR: {existing_pr.html_url}")
-            
-            # Update the PR with hardcoded message for now
-            print("📝 Updating PR with new content...")
-            
-            # For now, just append "edited" to the body as requested
-            current_body = existing_pr.body or ""
-            updated_body = current_body + "\n\n---\n**Updated:** edited"
-            
-            # Update the PR
-            existing_pr.edit(body=updated_body)
-            
-            print(f"✅ PR updated successfully!")
-            print(f"🔗 Updated PR: {existing_pr.html_url}")
-            
-            return existing_pr.html_url
-            
-        except ImportError:
-            print("❌ PyGithub not installed. Install with: pip install PyGithub")
+        repo, current_branch, owner, repo_name, github_repo, base_branch = setup_result
+        
+        # Look for existing PR for current branch
+        print(f"🔍 Looking for existing PR for branch '{current_branch}'...")
+        existing_prs = github_repo.get_pulls(
+            state='open',
+            head=f"{owner}:{current_branch}",
+            base=base_branch
+        )
+        
+        if existing_prs.totalCount == 0:
+            print(f"❌ No open PR found for branch '{current_branch}'")
+            print("💡 Create a PR first by running: bl pr create")
             return None
-            
-        except GithubException as e:
-            if e.status == 401:
-                raise Exception("GitHub authentication failed. Check your GITHUB_TOKEN.")
-            elif e.status == 403:
-                raise Exception("GitHub access forbidden. Check your token permissions.")
-            elif e.status == 404:
-                raise Exception(f"Repository {owner}/{repo_name} not found or no access.")
-            else:
-                raise Exception(f"GitHub API error: {e}")
-                
-        except Exception as e:
-            raise Exception(f"Failed to update GitHub PR: {e}")
+        
+        # Get the existing PR
+        existing_pr = existing_prs[0]
+        print(f"✅ Found existing PR #{existing_pr.number}: {existing_pr.title}")
+        print(f"🔗 Current PR: {existing_pr.html_url}")
+        
+        # Update the PR with hardcoded message for now
+        print("📝 Updating PR with new content...")
+        
+        # For now, just append "edited" to the body as requested
+        current_body = existing_pr.body or ""
+        updated_body = current_body + "\n\n---\n**Updated:** edited"
+        
+        # Update the PR
+        existing_pr.edit(body=updated_body)
+        
+        print(f"✅ PR updated successfully!")
+        print(f"🔗 Updated PR: {existing_pr.html_url}")
+        
+        return existing_pr.html_url
         
     except Exception as e:
         print(f"❌ Error in update_pr(): {e}")
@@ -452,4 +343,80 @@ def _get_base_branch(github_repo) -> str:
         
         # If all else fails, use 'main'
         return 'main'
+
+def _setup_github_connection():
+    """
+    Setup GitHub connection and repository information.
+    
+    Returns:
+        tuple: (repo, current_branch, owner, repo_name, github_repo, base_branch) or None if setup fails
+        
+    Raises:
+        Exception: If setup fails at any step
+    """
+    try:
+        # Load environment variables
+        load_dotenv()
+        
+        # Get repository and basic info
+        repo = get_repo()
+        current_branch = repo.active_branch.name
+        
+        # Get remote repository info
+        remote_url = _get_remote_url(repo)
+        owner, repo_name = _parse_github_url(remote_url)
+        
+        print(f"📁 Repository: {owner}/{repo_name}")
+        print(f"🌿 Current branch: {current_branch}")
+        
+        # Check for GitHub token
+        github_token = os.getenv('GITHUB_TOKEN')
+        if not github_token:
+            print("❌ Error: GITHUB_TOKEN not found in environment")
+            print("💡 Set GITHUB_TOKEN to enable GitHub operations")
+            return None
+        
+        # Setup GitHub connection
+        try:
+            from github import Github
+            from github.GithubException import GithubException
+            
+            print("🔐 Authenticating with GitHub...")
+            gh = Github(github_token)
+            
+            # Test authentication
+            user = gh.get_user()
+            print(f"✅ Authenticated as: {user.login}")
+            
+            # Get the repository
+            print(f"📡 Accessing repository {owner}/{repo_name}...")
+            github_repo = gh.get_repo(f"{owner}/{repo_name}")
+            
+            # Determine base branch (usually 'main' or 'master')
+            base_branch = _get_base_branch(github_repo)
+            print(f"🎯 Base branch: {base_branch}")
+            
+            return repo, current_branch, owner, repo_name, github_repo, base_branch
+            
+        except ImportError:
+            print("❌ PyGithub not installed. Install with: pip install PyGithub")
+            return None
+            
+        except Exception as e:
+            from github.GithubException import GithubException
+            if isinstance(e, GithubException):
+                if e.status == 401:
+                    raise Exception("GitHub authentication failed. Check your GITHUB_TOKEN.")
+                elif e.status == 403:
+                    raise Exception("GitHub access forbidden. Check your token permissions.")
+                elif e.status == 404:
+                    raise Exception(f"Repository {owner}/{repo_name} not found or no access.")
+                else:
+                    raise Exception(f"GitHub API error: {e}")
+            else:
+                raise Exception(f"Failed to setup GitHub connection: {e}")
+        
+    except Exception as e:
+        print(f"❌ Error in _setup_github_connection(): {e}")
+        raise
 
