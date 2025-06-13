@@ -1,0 +1,8 @@
+/**
+ * MyType.c3typ
+ * A simple example type
+ */
+
+type PrAgent {
+    promptAgent: function(branchName: string): string py-git
+}
