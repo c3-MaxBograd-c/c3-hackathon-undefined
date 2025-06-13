@@ -246,16 +246,113 @@ def update_pr() -> Optional[str]:
     """
     Main function called by `bl pr update`.
     
-    TODO: Implement update functionality:
-    - Find existing PR for current branch
-    - Update title/body based on new changes
-    - Push additional commits if needed
+    Flow:
+    1) Get repository and current branch info
+    2) Find existing PR for current branch
+    3) If no PR exists, tell user to create one
+    4) If PR exists, update it with new content
     
     Returns:
-        str: URL of updated PR or raises on failure
+        str: URL of updated PR or None if no PR found
+        
+    Raises:
+        Exception: If git repo issues, GitHub auth issues, or API errors
     """
-    # TODO: Implement PR update logic
-    raise NotImplementedError("update_pr() not yet implemented")
+    try:
+        # Load environment variables
+        load_dotenv()
+        
+        # Get repository and basic info
+        repo = get_repo()
+        current_branch = repo.active_branch.name
+        
+        # Get remote repository info
+        remote_url = _get_remote_url(repo)
+        owner, repo_name = _parse_github_url(remote_url)
+        
+        print(f"📁 Repository: {owner}/{repo_name}")
+        print(f"🌿 Current branch: {current_branch}")
+        
+        # Check for GitHub token
+        github_token = os.getenv('GITHUB_TOKEN')
+        if not github_token:
+            print("❌ Error: GITHUB_TOKEN not found in environment")
+            print("💡 Set GITHUB_TOKEN to enable PR updates")
+            return None
+        
+        # Use PyGithub to find and update PR
+        try:
+            from github import Github
+            from github.GithubException import GithubException
+            
+            print("🔐 Authenticating with GitHub...")
+            gh = Github(github_token)
+            
+            # Test authentication
+            user = gh.get_user()
+            print(f"✅ Authenticated as: {user.login}")
+            
+            # Get the repository
+            print(f"📡 Accessing repository {owner}/{repo_name}...")
+            github_repo = gh.get_repo(f"{owner}/{repo_name}")
+            
+            # Determine base branch (usually 'main' or 'master')
+            base_branch = _get_base_branch(github_repo)
+            print(f"🎯 Base branch: {base_branch}")
+            
+            # Look for existing PR for current branch
+            print(f"🔍 Looking for existing PR for branch '{current_branch}'...")
+            existing_prs = github_repo.get_pulls(
+                state='open',
+                head=f"{owner}:{current_branch}",
+                base=base_branch
+            )
+            
+            if existing_prs.totalCount == 0:
+                print(f"❌ No open PR found for branch '{current_branch}'")
+                print("💡 Create a PR first by running: bl pr create")
+                return None
+            
+            # Get the existing PR
+            existing_pr = existing_prs[0]
+            print(f"✅ Found existing PR #{existing_pr.number}: {existing_pr.title}")
+            print(f"🔗 Current PR: {existing_pr.html_url}")
+            
+            # Update the PR with hardcoded message for now
+            print("📝 Updating PR with new content...")
+            
+            # For now, just append "edited" to the body as requested
+            current_body = existing_pr.body or ""
+            updated_body = current_body + "\n\n---\n**Updated:** edited"
+            
+            # Update the PR
+            existing_pr.edit(body=updated_body)
+            
+            print(f"✅ PR updated successfully!")
+            print(f"🔗 Updated PR: {existing_pr.html_url}")
+            
+            return existing_pr.html_url
+            
+        except ImportError:
+            print("❌ PyGithub not installed. Install with: pip install PyGithub")
+            return None
+            
+        except GithubException as e:
+            if e.status == 401:
+                raise Exception("GitHub authentication failed. Check your GITHUB_TOKEN.")
+            elif e.status == 403:
+                raise Exception("GitHub access forbidden. Check your token permissions.")
+            elif e.status == 404:
+                raise Exception(f"Repository {owner}/{repo_name} not found or no access.")
+            else:
+                raise Exception(f"GitHub API error: {e}")
+                
+        except Exception as e:
+            raise Exception(f"Failed to update GitHub PR: {e}")
+        
+    except Exception as e:
+        print(f"❌ Error in update_pr(): {e}")
+        raise
 
 def _get_remote_url(repo) -> str:
     """

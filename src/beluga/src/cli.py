@@ -29,7 +29,7 @@
 import sys
 import click
 
-from beluga.src.pr_writer import create_pr, generate_pr_content
+from beluga.src.pr_writer import create_pr, generate_pr_content, update_pr
 from beluga.src import messages
 
 # =============================================================================
@@ -295,19 +295,48 @@ def _handle_pr_update(ctx, dry_run):
         ctx: Click context for error handling
         dry_run: boolean flag for testing mode
     
-    TODO: Implement update functionality
-    - Find existing PR for current branch
-    - Update title/body based on new changes
-    - Push additional commits if needed
+    Behavior:
+    - Finds existing PR for current branch
+    - Updates title/body with new content
+    - If no PR exists, tells user to create one first
     """
-    if dry_run:
-        click.echo(messages.LOG_DRY_RUN_UPDATE)
-        return
+    try:
+        if dry_run:
+            click.echo(messages.LOG_DRY_RUN_UPDATE)
+            return
         
-    # TODO: Implement PR update logic
-    click.secho(messages.FEATURE_UPDATE_COMING, fg="yellow")
-    click.echo(messages.FEATURE_UPDATE_WORKAROUND)
-    ctx.exit(1)
+        # Call the actual update function
+        click.echo("🔄 Updating existing PR...")
+        result = update_pr()
+        
+        # Handle results
+        if result:
+            click.secho(f"✅ PR updated successfully: {result}", fg="green")
+        else:
+            click.secho("ℹ️  No PR found to update", fg="yellow")
+            click.echo("💡 Create a PR first by running: bl pr create")
+            
+    except FileNotFoundError as e:
+        click.secho(f"❌ File not found: {e}", fg="red", err=True)
+        ctx.exit(1)
+        
+    except PermissionError as e:
+        click.secho(f"❌ Permission denied: {e}", fg="red", err=True)
+        ctx.exit(1)
+        
+    except Exception as e:
+        click.secho(f"❌ Failed to update PR: {e}", fg="red", err=True)
+        
+        # Provide helpful context based on error type
+        error_str = str(e).lower()
+        if "authentication" in error_str or "token" in error_str:
+            click.echo("💡 Check your GITHUB_TOKEN environment variable")
+        elif "network" in error_str or "connection" in error_str:
+            click.echo("💡 Check your internet connection")
+        elif "git" in error_str:
+            click.echo("💡 Make sure you're in a git repository")
+            
+        ctx.exit(1)
 
 # =============================================================================
 # FUTURE SUBCOMMANDS
