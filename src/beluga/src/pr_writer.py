@@ -19,10 +19,8 @@
 #
 
 import os
-import re
 from typing import Optional, Tuple
 from urllib.parse import urlparse
-
 from beluga.src.git_utils import get_repo, get_changed_files
 from beluga.src.ai_agent import draft_pr_with_ai
 from dotenv import load_dotenv
@@ -231,6 +229,11 @@ def update_pr() -> Optional[str]:
         
         # For now, just append "edited" to the body as requested
         current_body = existing_pr.body or ""
+
+        # call the generate content with ai function but with prompt to update the PR
+        # prompt should be telling the ai to consider what we already have in the PR and keep most of it
+        # edit the pr in a way to include new changes that are not included in the current PR body
+        # For now, just append "edited" to the body
         updated_body = current_body + "\n\n---\n**Updated:** edited"
         
         # Update the PR
