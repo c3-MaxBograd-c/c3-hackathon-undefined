@@ -30,6 +30,7 @@ dependencies = [
   "PyGithub>=1.59.0",
   "python-dotenv>=1.0.0",
   "openai",
+  "requests",
 ]
 
 [project.scripts]

@@ -1,0 +1,156 @@
+# -------------------------------------------------------------------
+# Git helper utilities tool
+# -------------------------------------------------------------------
+# What it does:
+#   - Wraps GitPython for common repo introspection:
+#       • get_repo() → Repo object for current path
+#       • get_changed_files() → list of modified file paths
+#
+# What it invokes:
+#   - git.Repo from GitPython
+#
+# Where to add changes:
+#   - If you need diffs, commit history, branch info, add new functions below.
+#
+# What not to change:
+#   - The existing function signatures—other modules depend on them.
+#
+
+from typing import TYPE_CHECKING
+import requests
+import json
+import subprocess
+import git
+
+if TYPE_CHECKING:
+    toolConfigurationParams: dict = {}
+
+SOME_VAR = None
+
+# /////////// Helper Methods ///////////
+def get_repo(path=None):
+    """
+    Return a GitPython Repo object rooted at `path`.
+    If no path is provided, tries current directory first, then uses git rev-parse --show-toplevel.
+    """
+    if path:
+        # If path is explicitly provided, use it directly
+        return git.Repo(path)
+    
+    try:
+        # First try current directory
+        return git.Repo(".")
+    except git.exc.InvalidGitRepositoryError:
+        try:
+            # If current directory fails, get the git repository root directory
+            result = subprocess.run(
+                ['git', 'rev-parse', '--show-toplevel'], 
+                capture_output=True, 
+                text=True, 
+                check=True
+            )
+            repo_root = result.stdout.strip()
+            return git.Repo(repo_root)
+        except subprocess.CalledProcessError:
+            # If git command fails, raise the original error
+            raise git.exc.InvalidGitRepositoryError("Not in a git repository and cannot find git root")
+
+def get_changed_files(repo=None):
+    """
+    Return a list of files changed (with their diffs) between the most recent commit
+    on the current branch and the 'develop' branch.
+    Returns a list of dicts: [{'path': <file>, 'diff': <diff_text>}]
+    """
+    repo = repo or get_repo()
+    # Get the current branch's latest commit
+    head_commit = repo.head.commit
+    # Get the latest commit on 'develop'
+    develop_commit = repo.merge_base(head_commit, 'develop')[0]
+    # Get the diff between develop and HEAD
+    diffs = head_commit.diff(develop_commit, create_patch=True)
+    changed = []
+    for d in diffs:
+        # d.a_path is the file path, d.diff is the patch text (bytes)
+        changed.append({
+            'path': d.a_path,
+            'diff': d.diff.decode('utf-8', errors='replace') if d.diff else ''
+        })
+    return changed
+
+def get_commit_messages_from_develop(repo=None):
+    """
+    Return a list of commit messages from the current branch
+    after its last merge with 'develop'.
+    """
+    repo = repo or get_repo()
+    # Find the merge base between the current branch and 'develop'
+    merge_base = repo.merge_base(repo.head.commit, 'develop')[0]
+    commits = list(repo.iter_commits(merge_base))
+    return [commit.message.strip() for commit in commits]
+
+
+# /////////// Tool Methods ///////////
+def initialize():
+    """
+    Used to initialize the tool and its state.
+
+    This function sets up a global variable with a configuration parameter
+    and prints a message indicating the initialization.
+
+    Global Variables:
+        SOME_VAR (str): A global variable that holds the initialization message.
+
+    Returns:
+        None
+    """
+
+    global GIT_PYTHON_REPO_OBJ
+    global CODE_DIFFS
+    global COMMIT_MESSAGES
+
+    GIT_PYTHON_REPO_OBJ = get_repo()
+    print(f"Initializing Git Repo Obj {GIT_PYTHON_REPO_OBJ}")
+
+    CODE_DIFFS = get_changed_files(GIT_PYTHON_REPO_OBJ)
+    print(f"Initializing Code Diffs {CODE_DIFFS}")
+
+    COMMIT_MESSAGES = get_commit_messages_from_develop(GIT_PYTHON_REPO_OBJ)
+    print(f"Initializing Commit Messages {COMMIT_MESSAGES}")
+
+
+def call() -> dict:
+    """
+    Use this tool to fetch the code diffs from a github feature branch.
+
+    Parameters:
+        None
+
+    Returns:
+        str: The universities as a string
+
+    Raises:
+        ValueError: If the request fails or the response is not valid JSON.
+    """
+
+    return {
+        "gitObj": GIT_PYTHON_REPO_OBJ,
+        "codeDiffs": CODE_DIFFS,
+        "commitMessages": COMMIT_MESSAGES
+    }
+
+
+def terminate():
+    """
+    Contains teardown logic to remove tool state and free up resources.
+
+    This function sets a global variable to indicate that the tool has been terminated and prints a message.
+
+    Global Variables:
+        SOME_VAR (str): A global variable that holds the termination message.
+
+    Returns:
+        None
+    """
+    global SOME_VAR
+    SOME_VAR = "tool terminated." + toolConfigurationParams["terminateConfig"]
+    print(f"Initializing {SOME_VAR}")
