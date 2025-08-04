@@ -11,5 +11,6 @@
 #
 # What not to change:
 #   - exec line—preserves SIGINT and args
-#
+#random commit
+
 exec "$(dirname "$0")/../.venv/bin/beluga" "$@"
