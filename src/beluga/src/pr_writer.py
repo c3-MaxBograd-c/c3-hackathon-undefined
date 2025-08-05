@@ -380,7 +380,7 @@ def _setup_github_connection():
         print(f"🌿 Current branch: {current_branch}")
         
         # Check for GitHub token
-        github_token = os.getenv('GITHUB_TOKEN')
+        github_token = os.getenv("GITHUB_TOKEN")
         if not github_token:
             print("❌ Error: GITHUB_TOKEN not found in environment")
             print("💡 Set GITHUB_TOKEN to enable GitHub operations")
