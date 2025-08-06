@@ -441,8 +441,6 @@ def get_media_files(repo):
     for diff in diff_index:
         if diff.a_path.lower().endswith(media_extensions):
             media_files.append(diff.a_path)
-            
-    format_media_content(media_files)
     
     return media_files
 
