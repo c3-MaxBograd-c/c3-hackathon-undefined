@@ -2,8 +2,10 @@
 import os
 import time
 from openai import OpenAI
+from dotenv import load_dotenv  
 
 # ── 1. Configuration ──────────────────────────────────────────────────────────
+load_dotenv()
 API_KEY = os.getenv("NARWHAL_API_KEY")
 ENDPOINT_URL = "https://hackathon-narwhal-t2.westus2.inference.ml.azure.com/v1"
 MODEL_NAME = "/models/checkpoint-11871"
