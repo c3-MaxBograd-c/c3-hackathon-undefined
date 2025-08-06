@@ -56,6 +56,7 @@ def create_pr(title: Optional[str] = None, body: Optional[str] = None) -> Option
         
         repo, current_branch, owner, repo_name, github_repo, base_branch = setup_result
         
+        
         if title and body:
             # Use provided title/body (from dry-run mode)
             print("✅ Using provided PR content...")
@@ -74,13 +75,17 @@ def create_pr(title: Optional[str] = None, body: Optional[str] = None) -> Option
             #         diffs.append({'file': file_path, 'diff': diff})
             #     except Exception as e:
             #         print(f"⚠️  Could not get diff for {file_path}: {e}")
+            media_file_paths = get_media_files(repo)
+            if media_file_paths:
+                print(f"📸 Found {len(media_file_paths)} media files: {', '.join(media_file_paths)}")
             jira_fetch = fetch_jira_info_from_branch()
             jira_data = jira_utils.get_jira_ticket_info(jira_fetch)
             template = ''  # TODO: Add template loading logic
             print("🤖 Generating PR content with AI...")
             # Call AI agent to produce (title, body)
-            title, body = draft_pr_with_ai(files, jira_data, template)
-        
+            media_content = format_media_content(media_file_paths)
+            title, body = draft_pr_with_ai(files, jira_data, template, media_content)
+   
         # Validate we have content
         if not title or not body:
             raise ValueError("AI failed to generate PR title or body")
@@ -159,13 +164,9 @@ def generate_pr_content() -> Tuple[str, str]:
         jira_data = jira_utils.get_jira_ticket_info(jiraFetch)
         template = ''   # TODO: Add template loading logic
         title, body = draft_pr_with_ai(files, jira_data, template)
-        
-        # Add media files to PR body
-        media_files = get_media_files(repo)
-        if media_files:
-            print(f"🖼️  Found {len(media_files)} media files")
-            media_content = format_media_content(media_files)
-            body += media_content
+
+
+            
         
         if not title or not body:
             raise ValueError("AI failed to generate PR title or body")
@@ -440,21 +441,11 @@ def get_media_files(repo):
     for diff in diff_index:
         if diff.a_path.lower().endswith(media_extensions):
             media_files.append(diff.a_path)
+            
+    format_media_content(media_files)
     
     return media_files
 
-def format_media_content(media_files):
-    """Format media files as markdown"""
-    content = "\n\n### Media Files\n"
-    for file in media_files:
-        if file.lower().endswith(('.png', '.jpg', '.jpeg', '.gif')):
-            content += f"\n![{file}]({file})"
-        elif file.lower().endswith(('.mp4', '.mov')):
-            content += f"\n<video src='{file}' controls></video>"
-    return content
-
-    
-    return media_files
 
 def format_media_content(media_files):
     """Format media files as markdown"""

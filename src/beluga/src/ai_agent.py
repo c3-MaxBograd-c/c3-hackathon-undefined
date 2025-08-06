@@ -3,7 +3,31 @@ import os
 import time
 from openai import OpenAI
 from dotenv import load_dotenv  
+import glob
 
+def read_docs_files():
+    """Read all markdown files from docs/ directory"""
+    docs_content = ""
+    try:
+        # Find all .md files in docs/ directory
+        doc_files = glob.glob("docs/*.md") + glob.glob("docs/**/*.md", recursive=True)
+        
+        if not doc_files:
+            return "No documentation files found in docs/ directory."
+        
+        for doc_file in doc_files:
+            try:
+                with open(doc_file, 'r', encoding='utf-8') as f:
+                    content = f.read()
+                    docs_content += f"\n--- {doc_file} ---\n{content}\n"
+            except Exception as e:
+                print(f"⚠️ Could not read {doc_file}: {e}")
+        
+        return docs_content if docs_content else "No readable documentation found."
+        
+    except Exception as e:
+        print(f"⚠️ Error reading docs: {e}")
+        return "Error reading documentation files."
 # ── 1. Configuration ──────────────────────────────────────────────────────────
 load_dotenv()
 API_KEY = os.getenv("NARWHAL_API_KEY")
@@ -22,7 +46,7 @@ GENERATION_ARGS = {
 # ── 2. Narwhal Client Setup ───────────────────────────────────────────────────
 client = OpenAI(api_key=API_KEY, base_url=ENDPOINT_URL)
 messages = [
-    {"role": "system", "content": "You are Narwhal, a C#.ai PR Making Agent"}
+    {"role": "system", "content": "You are Beluga, a C3.ai PR Making Agent"}
 ]
 
 def ask_llm(user_msg: str) -> str:
@@ -38,7 +62,9 @@ def ask_llm(user_msg: str) -> str:
     return assistant_reply
 
 # ── 3. Draft PR Function ──────────────────────────────────────────────────────
-def draft_pr_with_ai(files, jira, template):
+def draft_pr_with_ai(files, jira, template,pr):
+    dC = read_docs_files()
+
     """
     Given a list of changed files, Jira info, and template,
     return a tuple (title, body) drafted by Narwhal.
@@ -75,9 +101,16 @@ Use the following information and please edit the PR to reflect those changes. T
 --- Code Diffs ---
 {diffs_text}
 
+-- Media Files ---
+{pr}
+
+
 Please return:
-- The TITLE IS THE WHOLE TITLE OF THE JIRA TICKET 
-- A clear and concise PR body beneath it (no AI comments, no assistant tags).
+Use one of these formats based on the name of the branch {dC}
+- The TITLE IS THE WHOLE TITLE OF THE JIRA TICKET always
+- Add the actual link to the jira ticket always
+- Include a technically precise summary ALWAYS about the ticket and what the code does
+- Make sure to actually include your own description of the sumary of changes using {jira}
 """
 
     # Call Narwhal
@@ -88,6 +121,7 @@ Please return:
     title = raw_title.split("|")[0].strip()
     lines = response.split("\n", 1)
     body = lines[1].strip() if len(lines) > 1 else ""
+    body += pr 
 
     return title, body
 
