@@ -101,8 +101,6 @@ Use the following information and please edit the PR to reflect those changes. T
 --- Code Diffs ---
 {diffs_text}
 
--- Media Files ---
-{pr}
 
 
 Please return:
@@ -110,7 +108,7 @@ Use one of these formats based on the name of the branch {dC}
 - The TITLE IS THE WHOLE TITLE OF THE JIRA TICKET always
 - Add the actual link to the jira ticket always
 - Include a technically precise summary ALWAYS about the ticket and what the code does
-- Make sure to actually include your own description of the sumary of changes using {jira}
+- Make sure to actually include your own description of the sumary of changes using {jira} and this is the media files {pr}
 """
 
     # Call Narwhal
