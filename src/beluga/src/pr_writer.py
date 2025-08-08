@@ -146,32 +146,12 @@ def generate_pr_content() -> Tuple[str, str]:
     """
     Generate PR title and body without creating the actual PR.
     Used for dry-run mode.
-    
-    Flow:
-    1) Read repo and changed files
-    2) Call AI to draft title/body
-    3) Return content without creating PR
-    
-    Returns:
-        tuple: (title, body) strings
-        
-    Raises:
-        Exception: If git repo issues or AI generation fails
     """
     try:
         repo = get_repo()
         files = get_changed_files(repo)
         
         print(f"📝 Analyzing {len(files)} changed files...")
-        
-        # TODO: Read diffs and commit messages for more context:
-        # diffs = []
-        # for file_path in files:
-        #     try:
-        #         diff = repo.git.diff('HEAD', file_path)
-        #         diffs.append({'file': file_path, 'diff': diff})
-        #     except Exception as e:
-        #         print(f"⚠️  Could not get diff for {file_path}: {e}")
 
         print("🤖 Generating PR content...")
         # Call AI agent to produce (title, body)
@@ -179,6 +159,13 @@ def generate_pr_content() -> Tuple[str, str]:
         jira_data = jira_utils.get_jira_ticket_info(jiraFetch)
         template = ''   # TODO: Add template loading logic
         title, body = draft_pr_with_ai(files, jira_data, template)
+        
+        # Add media files to PR body
+        media_files = get_media_files(repo)
+        if media_files:
+            print(f"🖼️  Found {len(media_files)} media files")
+            media_content = format_media_content(media_files)
+            body += media_content
         
         if not title or not body:
             raise ValueError("AI failed to generate PR title or body")
@@ -442,3 +429,40 @@ def fetch_jira_info_from_branch():
          raise ValueError("Ticket name could not be extracted from branch name.")
     
     return ticket_name
+
+def get_media_files(repo):
+    """Get media files from current commit"""
+    media_extensions = ('.png', '.jpg', '.jpeg', '.gif', '.mp4', '.mov')
+    media_files = []
+    
+    # Get changed files in latest commit
+    diff_index = repo.index.diff('HEAD')
+    for diff in diff_index:
+        if diff.a_path.lower().endswith(media_extensions):
+            media_files.append(diff.a_path)
+    
+    return media_files
+
+def format_media_content(media_files):
+    """Format media files as markdown"""
+    content = "\n\n### Media Files\n"
+    for file in media_files:
+        if file.lower().endswith(('.png', '.jpg', '.jpeg', '.gif')):
+            content += f"\n![{file}]({file})"
+        elif file.lower().endswith(('.mp4', '.mov')):
+            content += f"\n<video src='{file}' controls></video>"
+    return content
+
+    
+    return media_files
+
+def format_media_content(media_files):
+    """Format media files as markdown"""
+    content = "\n\n### Media Files\n"
+    for file in media_files:
+        if file.lower().endswith(('.png', '.jpg', '.jpeg', '.gif')):
+            content += f"\n![{file}]({file})"
+        elif file.lower().endswith(('.mp4', '.mov')):
+            content += f"\n<video src='{file}' controls></video>"
+    return content
+
